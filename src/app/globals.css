@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Sora", "Inter", sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-mist-300/60;
+  }
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    @apply bg-white text-ink-900 antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+  ::selection {
+    @apply bg-royal-500/20 text-ink-900;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-[1200px] px-5 lg:px-8;
+  }
+
+  .glass {
+    @apply border border-white/60 bg-white/70 backdrop-blur-xl;
+  }
+  .glass-dark {
+    @apply border border-white/10 bg-white/5 backdrop-blur-xl;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3
+      text-sm font-semibold transition-all duration-200 focus:outline-none
+      focus-visible:ring-2 focus-visible:ring-royal-500 focus-visible:ring-offset-2
+      disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply btn bg-royal-500 text-white shadow-[0_8px_30px_-8px_rgba(37,99,235,0.7)]
+      hover:-translate-y-0.5 hover:bg-royal-600 hover:shadow-glow active:translate-y-0;
+  }
+  .btn-secondary {
+    @apply btn border border-ink-900/10 bg-white text-ink-900 shadow-sm
+      hover:-translate-y-0.5 hover:border-royal-500/40 hover:text-royal-600;
+  }
+  .btn-ghost {
+    @apply btn text-ink-900/70 hover:bg-ink-900/5 hover:text-ink-900;
+  }
+
+  .card {
+    @apply rounded-3xl border border-mist-300/70 bg-white shadow-card;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-royal-500/20
+      bg-royal-50 px-3 py-1 text-xs font-medium text-royal-700;
+  }
+
+  .section {
+    @apply py-20 sm:py-28;
+  }
+
+  .heading-gradient {
+    @apply bg-gradient-to-r from-ink-900 via-royal-700 to-royal-500 bg-clip-text text-transparent;
+  }
+
+  .link-underline {
+    @apply relative after:absolute after:-bottom-0.5 after:left-0 after:h-px
+      after:w-0 after:bg-royal-500 after:transition-all hover:after:w-full;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-mist-300 bg-white px-4 py-3 text-sm
+      text-ink-900 placeholder:text-ink-900/40 shadow-sm transition
+      focus:border-royal-500 focus:outline-none focus:ring-4 focus:ring-royal-500/10;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-ink-900/80;
+  }
+}
+
+/* Animated gradient text for the wordmark */
+.gradient-move {
+  background-size: 200% 200%;
+  @apply animate-gradient-pan;
+}
+
+/* Marquee-free connection lines glow */
+.glow-dot {
+  box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5);
+}
+
+/* Custom scrollbar (admin tables etc.) */
+.scroll-slim::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.scroll-slim::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-ink-900/15;
+}
+
+/* Respect reduced motion globally */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
