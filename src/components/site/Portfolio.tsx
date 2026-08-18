@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ExternalLink, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { Reveal } from "@/components/motion/Reveal";
+import { slugify } from "@/lib/utils";
 import type { Project } from "@/lib/types";
 
 export function Portfolio({
@@ -85,8 +87,12 @@ export function Portfolio({
 }
 
 function ProjectCard({ project }: { project: Project }) {
+  const href = `/projects/${project.slug ?? slugify(project.title)}`;
   return (
-    <div className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-mist-300/70 bg-white shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-soft">
+    <Link
+      href={href}
+      className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-mist-300/70 bg-white shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:border-royal-500/30 hover:shadow-soft"
+    >
       <div className="relative aspect-[16/10] overflow-hidden bg-mist-200">
         {project.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -131,22 +137,12 @@ function ProjectCard({ project }: { project: Project }) {
             <span />
           )}
 
-          {project.live_url ? (
-            <a
-              href={project.live_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-royal-600 hover:text-royal-700"
-            >
-              View Project <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          ) : (
-            <span className="inline-flex items-center gap-1 text-sm font-semibold text-ink-900/40">
-              Case study <ArrowUpRight className="h-3.5 w-3.5" />
-            </span>
-          )}
+          <span className="inline-flex items-center gap-1 text-sm font-semibold text-royal-600">
+            View Project
+            <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -118,3 +118,20 @@ export function getHero(): Promise<HeroSettings> {
 export function getStats(): Promise<StatsSettings> {
   return getSetting<StatsSettings>("stats", fallbackStats);
 }
+
+// ---- Single-record lookups (for detail pages) ------------------------------
+
+export async function getServiceBySlug(slug: string): Promise<Service | null> {
+  const all = await getServices();
+  return all.find((s) => s.slug === slug) ?? null;
+}
+
+export async function getProjectBySlug(slug: string): Promise<Project | null> {
+  const all = await getProjects();
+  return all.find((p) => p.slug === slug) ?? null;
+}
+
+export async function getPricingById(id: string): Promise<Pricing | null> {
+  const all = await getPricing();
+  return all.find((p) => p.id === id) ?? null;
+}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles, ArrowRight } from "lucide-react";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import type { Pricing } from "@/lib/types";
@@ -17,8 +17,9 @@ export function PricingSection({ plans }: { plans: Pricing[] }) {
         <RevealGroup className="mt-14 grid gap-6 md:grid-cols-3">
           {plans.map((plan) => (
             <RevealItem key={plan.id}>
-              <div
-                className={`relative flex h-full flex-col rounded-3xl border p-8 transition-all duration-300 hover:-translate-y-1.5 ${
+              <Link
+                href={`/pricing/${plan.id}`}
+                className={`group relative flex h-full flex-col rounded-3xl border p-8 transition-all duration-300 hover:-translate-y-1.5 ${
                   plan.highlighted
                     ? "border-royal-500/40 bg-gradient-to-br from-ink-900 to-royal-800 text-white shadow-soft"
                     : "border-mist-300/70 bg-white text-ink-900 shadow-card hover:shadow-soft"
@@ -75,17 +76,17 @@ export function PricingSection({ plans }: { plans: Pricing[] }) {
                   ))}
                 </ul>
 
-                <Link
-                  href="/contact"
-                  className={`mt-8 ${
+                <span
+                  className={`mt-8 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-colors ${
                     plan.highlighted
-                      ? "btn bg-white text-ink-900 hover:bg-mist-100"
-                      : "btn-primary"
+                      ? "bg-white text-ink-900 group-hover:bg-mist-100"
+                      : "bg-royal-500 text-white group-hover:bg-royal-600"
                   }`}
                 >
-                  Request a Quote
-                </Link>
-              </div>
+                  View details
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </span>
+              </Link>
             </RevealItem>
           ))}
         </RevealGroup>
