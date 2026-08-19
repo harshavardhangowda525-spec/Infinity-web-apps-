@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X, LayoutDashboard, LogIn } from "lucide-react";
+import { Menu, X, LayoutDashboard } from "lucide-react";
 import { Logo } from "@/components/site/Logo";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/env";
@@ -86,14 +86,9 @@ export function Navbar() {
               <LayoutDashboard className="h-4 w-4" /> Dashboard
             </Link>
           ) : (
-            <>
-              <Link href="/login" className="btn-ghost">
-                <LogIn className="h-4 w-4" /> Login
-              </Link>
-              <Link href="/contact" className="btn-primary">
-                Get Started
-              </Link>
-            </>
+            <Link href="/contact" className="btn-primary">
+              Get Started
+            </Link>
           )}
         </div>
 
@@ -132,14 +127,9 @@ export function Navbar() {
                     <LayoutDashboard className="h-4 w-4" /> Dashboard
                   </Link>
                 ) : (
-                  <>
-                    <Link href="/login" className="btn-secondary flex-1">
-                      Login
-                    </Link>
-                    <Link href="/contact" className="btn-primary flex-1">
-                      Get Started
-                    </Link>
-                  </>
+                  <Link href="/contact" className="btn-primary flex-1">
+                    Get Started
+                  </Link>
                 )}
               </li>
             </ul>
