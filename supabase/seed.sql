@@ -73,6 +73,20 @@ insert into public.testimonials (author, role, company, quote, rating, sort_orde
    'The custom CRM dashboard saved our team hours every week. Fantastic, responsive support.', 5, 3)
 on conflict do nothing;
 
+-- ---- admin allow-list ------------------------------------------------------
+-- Emails listed here are treated as administrators by RLS (is_admin()), and any
+-- matching signup is auto-promoted to the 'admin' role. Add your admin email(s).
+-- Keep this in sync with the app's ADMIN_EMAILS env var.
+insert into public.admin_emails (email) values
+  ('akagaminodfshanks@gmail.com')
+on conflict (email) do nothing;
+
+-- Promote any already-registered profile whose email is allow-listed.
+update public.profiles p
+set role = 'admin'
+from public.admin_emails a
+where lower(p.email) = lower(a.email) and p.role <> 'admin';
+
 -- ---- site_settings ---------------------------------------------------------
 insert into public.site_settings (key, value, is_public) values
   ('company', jsonb_build_object(

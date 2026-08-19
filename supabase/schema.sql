@@ -58,7 +58,16 @@ drop trigger if exists trg_profiles_updated on public.profiles;
 create trigger trg_profiles_updated before update on public.profiles
   for each row execute function public.set_updated_at();
 
+-- Database-side admin allow-list. Lets the app's email allow-list be enforced
+-- by RLS (the database cannot read the app's ADMIN_EMAILS env var). Seed it
+-- with your admin email(s); see the seed at the bottom of this file.
+create table if not exists public.admin_emails (
+  email      text primary key,
+  created_at timestamptz not null default now()
+);
+
 -- Convenience helper: is the current auth user an admin?
+-- Admin = profiles.role = 'admin' OR the user's email is allow-listed.
 create or replace function public.is_admin()
 returns boolean
 language sql
@@ -66,10 +75,17 @@ security definer
 set search_path = public
 stable
 as $$
-  select exists (
-    select 1 from public.profiles p
-    where p.id = auth.uid() and p.role = 'admin'
-  );
+  select
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'admin'
+    )
+    or exists (
+      select 1
+      from public.profiles p
+      join public.admin_emails a on lower(a.email) = lower(p.email)
+      where p.id = auth.uid()
+    );
 $$;
 
 -- Auto-create a profile row whenever a new auth user signs up.
@@ -79,13 +95,22 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  assigned_role user_role := 'viewer';
 begin
+  -- Allow-listed emails become admins automatically on signup.
+  if exists (
+    select 1 from public.admin_emails a where lower(a.email) = lower(new.email)
+  ) then
+    assigned_role := 'admin';
+  end if;
+
   insert into public.profiles (id, email, full_name, role)
   values (
     new.id,
     new.email,
     coalesce(new.raw_user_meta_data->>'full_name', ''),
-    'viewer'
+    assigned_role
   )
   on conflict (id) do nothing;
   return new;
@@ -301,6 +326,12 @@ alter table public.pricing        enable row level security;
 alter table public.testimonials   enable row level security;
 alter table public.site_settings  enable row level security;
 alter table public.activity_logs  enable row level security;
+alter table public.admin_emails   enable row level security;
+
+-- ---- admin_emails (admin-only; seeded from the SQL editor as superuser) -----
+drop policy if exists "admin_emails_admin_all" on public.admin_emails;
+create policy "admin_emails_admin_all" on public.admin_emails
+  for all using (public.is_admin()) with check (public.is_admin());
 
 -- ---- profiles --------------------------------------------------------------
 drop policy if exists "profiles_self_select" on public.profiles;
@@ -384,12 +415,31 @@ create policy "testimonials_admin_write" on public.testimonials
   for all using (public.is_admin()) with check (public.is_admin());
 
 -- ---- site_settings ---------------------------------------------------------
+-- Explicit, minimal per-command policies. Public keys are world-readable;
+-- only admins may create, update, or delete settings.
 drop policy if exists "settings_public_read" on public.site_settings;
-create policy "settings_public_read" on public.site_settings
-  for select to anon, authenticated using (is_public or public.is_admin());
 drop policy if exists "settings_admin_write" on public.site_settings;
-create policy "settings_admin_write" on public.site_settings
-  for all using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "site_settings_select" on public.site_settings;
+drop policy if exists "site_settings_insert" on public.site_settings;
+drop policy if exists "site_settings_update" on public.site_settings;
+drop policy if exists "site_settings_delete" on public.site_settings;
+
+create policy "site_settings_select" on public.site_settings
+  for select to anon, authenticated
+  using (is_public or public.is_admin());
+
+create policy "site_settings_insert" on public.site_settings
+  for insert to authenticated
+  with check (public.is_admin());
+
+create policy "site_settings_update" on public.site_settings
+  for update to authenticated
+  using (public.is_admin())
+  with check (public.is_admin());
+
+create policy "site_settings_delete" on public.site_settings
+  for delete to authenticated
+  using (public.is_admin());
 
 -- ============================================================================
 -- STORAGE  (project images)
